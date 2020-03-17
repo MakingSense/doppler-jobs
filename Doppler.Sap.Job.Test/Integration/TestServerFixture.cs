@@ -6,7 +6,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Doppler.Worker.Test.Integration
+namespace Doppler.Jobs.Test.Integration
 {
     public class TestServerFixture : IDisposable
     {

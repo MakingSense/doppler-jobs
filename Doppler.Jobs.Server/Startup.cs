@@ -1,6 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Authentication;
 using CrossCutting;
 using Doppler.Sap.Job.Service;
+using Doppler.Sap.Job.Service.DopplerCurrencyService;
+using Doppler.Sap.Job.Service.Logger;
+using Doppler.Sap.Job.Service.Settings;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +17,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace Doppler.Service.Job.Server
 {
@@ -24,13 +34,62 @@ namespace Doppler.Service.Job.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>));
+
             services.AddHangfire(x =>
             {
                 x.UseSQLiteStorage();
             });
 
+            var httpClientPolicies = new HttpClientPoliciesSettings();
+            Configuration.GetSection("HttpClient:Client").Bind(httpClientPolicies);
+            services.AddSingleton(httpClientPolicies);
+
+            var handlerHttpClient = new HttpClientHandler
+            {
+                ClientCertificateOptions = ClientCertificateOption.Automatic,
+                SslProtocols = SslProtocols.Tls12
+            };
+
+            services.AddHttpClient(httpClientPolicies.ClientName, c => { })
+                .ConfigurePrimaryHttpMessageHandler(() => handlerHttpClient)
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
+
+            services.AddTransient<IDopplerCurrencyService, DopplerCurrencyService>();
+
+            var dopplerCurrencySettings = new DopplerCurrencySettings
+            {
+                CurrencyCodeList = Configuration.GetSection("DopplerCurrencyService:CurrencyCode")
+                    .Get<List<string>>()
+            };
+            Configuration.GetSection("DopplerCurrencyService").Bind(dopplerCurrencySettings);
+            services.AddSingleton(dopplerCurrencySettings);
+
+            services.AddTransient(sp => new DopplerCurrencyService(
+                sp.GetService<IHttpClientFactory>(), 
+                httpClientPolicies,
+                dopplerCurrencySettings,
+                sp.GetService<ILoggerAdapter<DopplerCurrencyService>>()));
+
             ConfigureJob(services);
             ConfigureJobsScheduler(services);
+        }
+
+        private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int retry)
+        {
+            HttpStatusCode[] httpStatusCodesWorthRetrying =
+            {
+                HttpStatusCode.RequestTimeout,
+                HttpStatusCode.InternalServerError,
+                HttpStatusCode.BadGateway,
+                HttpStatusCode.ServiceUnavailable,
+                HttpStatusCode.GatewayTimeout
+            };
+            return HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .OrResult(r => httpStatusCodesWorthRetrying.Contains(r.StatusCode))
+                .WaitAndRetryAsync(retry, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,10 +115,11 @@ namespace Doppler.Service.Job.Server
                 IntervalCronExpression = $"{Configuration["Jobs:WorkerServiceJob:IntervalCronExpression"]}"
             };
 
-            services.AddTransient(sp => new SapServiceJob(
-                sp.GetService<ILogger<SapServiceJob>>(),
+            services.AddTransient(sp => new DopplerSapJob(
+                sp.GetService<ILoggerAdapter<DopplerSapJob>>(),
                 jobConfig.IntervalCronExpression, 
-                jobConfig.Identifier));
+                jobConfig.Identifier,
+                services.BuildServiceProvider().GetService<DopplerCurrencyService>()));
         }
 
         private void ConfigureJobsScheduler(IServiceCollection services)
@@ -71,7 +131,7 @@ namespace Doppler.Service.Job.Server
             services.AddTransient(sp =>
                 new JobScheduler(new List<IRecurringJob>
                     {
-                        services.BuildServiceProvider().GetService<SapServiceJob>()
+                        services.BuildServiceProvider().GetService<DopplerSapJob>()
                     },
                     sp.GetRequiredService<ILogger<JobScheduler>>(),
                     jobsConfig)
