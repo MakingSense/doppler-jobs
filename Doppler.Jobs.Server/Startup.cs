@@ -56,8 +56,6 @@ namespace Doppler.Service.Job.Server
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
-            services.AddTransient<IDopplerCurrencyService, DopplerCurrencyService>();
-
             var dopplerCurrencySettings = new DopplerCurrencySettings
             {
                 CurrencyCodeList = Configuration.GetSection("DopplerCurrencyService:CurrencyCode")
@@ -66,14 +64,20 @@ namespace Doppler.Service.Job.Server
             Configuration.GetSection("DopplerCurrencyService").Bind(dopplerCurrencySettings);
             services.AddSingleton(dopplerCurrencySettings);
 
+            var jobsConfig = new TimeZoneJobConfigurations
+            {
+                TimeZoneJobs = $"{Configuration["TimeZoneJobs"]}"
+            };
+
             services.AddTransient(sp => new DopplerCurrencyService(
                 sp.GetService<IHttpClientFactory>(), 
                 httpClientPolicies,
                 dopplerCurrencySettings,
-                sp.GetService<ILoggerAdapter<DopplerCurrencyService>>()));
+                sp.GetService<ILoggerAdapter<DopplerCurrencyService>>(),
+                jobsConfig));
 
             ConfigureJob(services);
-            ConfigureJobsScheduler(services);
+            ConfigureJobsScheduler(services, jobsConfig);
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int retry)
@@ -122,12 +126,8 @@ namespace Doppler.Service.Job.Server
                 services.BuildServiceProvider().GetService<DopplerCurrencyService>()));
         }
 
-        private void ConfigureJobsScheduler(IServiceCollection services)
+        private void ConfigureJobsScheduler(IServiceCollection services, TimeZoneJobConfigurations jobsConfig)
         {
-            var jobsConfig = new TimeZoneJobConfigurations
-            {
-                TimeZoneJobs = $"{Configuration["TimeZoneJobs"]}"
-            };
             services.AddTransient(sp =>
                 new JobScheduler(new List<IRecurringJob>
                     {

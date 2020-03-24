@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CrossCutting;
 using Doppler.Sap.Job.Service.Dtos;
 using Doppler.Sap.Job.Service.Logger;
 using Doppler.Sap.Job.Service.Settings;
@@ -14,26 +15,31 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
         private readonly HttpClient _httpClient;
         private readonly DopplerCurrencySettings _dopplerCurrencySettings;
         private readonly ILoggerAdapter<DopplerCurrencyService> _logger;
+        private readonly TimeZoneJobConfigurations _jobConfig;
 
         public DopplerCurrencyService(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings httpClientPoliciesSettings,
             DopplerCurrencySettings dopplerCurrencySettings,
-            ILoggerAdapter<DopplerCurrencyService> logger)
+            ILoggerAdapter<DopplerCurrencyService> logger,
+            TimeZoneJobConfigurations jobConfig)
         {
             _httpClient = httpClientFactory.CreateClient(httpClientPoliciesSettings.ClientName);
             _dopplerCurrencySettings = dopplerCurrencySettings;
             _logger = logger;
+            _jobConfig = jobConfig;
         }
 
         public async Task<IList<CurrencyDto>> GetCurrencyByCode()
         {
-            var dateTimeNow = DateTime.UtcNow;
+            var cstZone = TimeZoneInfo.FindSystemTimeZoneById(_jobConfig.TimeZoneJobs);
+            var cstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, cstZone);
+            
             var returnList = new List<CurrencyDto>();
             
             foreach (var currencyCode in _dopplerCurrencySettings.CurrencyCodeList)
             {
-                var uri = new Uri(_dopplerCurrencySettings.Url + $"{currencyCode}/{dateTimeNow.Year}-{dateTimeNow.Month}-{dateTimeNow.Day}");
+                var uri = new Uri(_dopplerCurrencySettings.Url + $"{currencyCode}/{cstTime.Year}-{cstTime.Month}-{cstTime.Day}");
 
                 _logger.LogInformation($"Building http request with url {uri}");
                 var httpRequest = new HttpRequestMessage
