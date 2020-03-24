@@ -58,22 +58,10 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 
                     var json = await httpResponse.Content.ReadAsStringAsync();
 
-                    var result = JsonConvert.DeserializeObject<dynamic>(json);
-                    var date = result["entity"]["date"].ToString();
-                    var sale = result["entity"]["saleValue"].ToString();
-                    var buy = result["entity"]["buyValue"].ToString();
-                    var currencyName = result["entity"]["currencyName"].ToString();
+                    var result = JsonConvert.DeserializeObject<CurrencyDto>(json);
+                    result.Entity.CurrencyCode = currencyCode;
 
-                    var dto = new CurrencyDto
-                    {
-                        BuyValue = decimal.Parse(buy),
-                        CurrencyName = currencyName,
-                        Date = date,
-                        SaleValue = decimal.Parse(sale),
-                        CurrencyCode = currencyCode
-                    };
-
-                    returnList.Add(dto);
+                    returnList.Add(result);
                 }
                 catch (Exception e)
                 {

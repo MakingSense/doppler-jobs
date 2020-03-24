@@ -47,18 +47,20 @@ namespace Doppler.Jobs.Test
                 new DopplerCurrencySettings
                 {
                     Url = "https://localhost:5001/Currency/",
-                    CurrencyCodeList = new List<string>{ "Ars" }
+                    CurrencyCodeList = new List<string> { "Ars" }
                 }
             );
 
             var result = await service.GetCurrencyByCode();
 
-            Assert.NotNull(result);
-            Assert.Equal("2020-03-18", result[0].Date);
-            Assert.Equal(65.0000M, result[0].SaleValue);
-            Assert.Equal(20.30M, result[0].BuyValue);
-            Assert.Equal("Peso Argentino", result[0].CurrencyName);
-            Assert.Equal("Ars", result[0].CurrencyCode);
+            Assert.NotEmpty(result);
+
+            var currency = result[0].Entity;
+            Assert.Equal("2020-03-18", currency.Date);
+            Assert.Equal(65.0000M, currency.SaleValue);
+            Assert.Equal(20.30M, currency.BuyValue);
+            Assert.Equal("Peso Argentino", currency.CurrencyName);
+            Assert.Equal("Ars", currency.CurrencyCode);
         }
 
         [Fact]
