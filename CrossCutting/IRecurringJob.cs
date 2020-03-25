@@ -4,6 +4,6 @@
     {
         string IntervalCronExpression { get; }
         string Identifier { get; }
-        void Run();
+        object Run();
     }
 }

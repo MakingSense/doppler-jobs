@@ -1,14 +1,17 @@
 ﻿using System.Net.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 {
     public abstract class ExternalService
     {
-        protected readonly HttpClient HttpClient;
+        protected HttpClient HttpClient;
+        protected ILogger<ExternalService> Logger;
 
-        public ExternalService()
+        protected ExternalService(HttpClient httpClient, ILogger<ExternalService> logger)
         {
-
+            HttpClient = httpClient;
+            Logger = logger;
         }
     }
 }

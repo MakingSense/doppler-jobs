@@ -2,47 +2,54 @@ using System.Linq;
 using System.Threading.Tasks;
 using CrossCutting;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
-using Doppler.Sap.Job.Service.Logger;
+using Doppler.Sap.Job.Service.DopplerSapService;
 using Hangfire;
+using Microsoft.Extensions.Logging;
 
 namespace Doppler.Sap.Job.Service
 {
     public class DopplerSapJob : IRecurringJob
     {
-        private readonly ILoggerAdapter<DopplerSapJob> _logger;
+        private readonly ILogger<DopplerSapJob> _logger;
         public string Identifier { get; }
         public string IntervalCronExpression { get; }
 
         private readonly IDopplerCurrencyService _dopplerCurrencyService;
+        private readonly IDopplerSapService _dopplerSapService;
 
         public DopplerSapJob(
-            ILoggerAdapter<DopplerSapJob> logger,
+            ILogger<DopplerSapJob> logger,
             string intervalCronExpression,
             string identifier,
-            IDopplerCurrencyService dopplerCurrencyService)
+            IDopplerCurrencyService dopplerCurrencyService,
+            IDopplerSapService dopplerSapService)
         {
             _logger = logger;
             IntervalCronExpression = intervalCronExpression;
             Identifier = identifier;
             _dopplerCurrencyService = dopplerCurrencyService;
+            _dopplerSapService = dopplerSapService;
         }
 
         [AutomaticRetry(Attempts = 0)]
-        public void Run()
+        public object Run()
         {
-            RunAsync().GetAwaiter().GetResult();
+            var a = RunAsync().GetAwaiter().GetResult();
+            return a;
         }
 
-        private async Task RunAsync()
+        private async Task<object> RunAsync()
         {
-            _logger.LogInformation("Getting currency per each code.");
+            _logger.LogInformation("Getting currency per each code enabled.");
             var currencyDto = await _dopplerCurrencyService.GetCurrencyByCode();
-            
-            if (currencyDto.Any())
-            {
-                _logger.LogInformation($"Sending data to Sap system with data: {currencyDto}.");
-                //TODO: Add call DopplerSap service
-            }
+
+            if (!currencyDto.Any()) 
+                return "Not exist Currency for this date, please check if a holiday.";
+
+            _logger.LogInformation($"Sending data to Doppler SAP system with data: {currencyDto.Count}.");
+            await _dopplerSapService.SendCurrency(currencyDto);
+
+            return currencyDto;
         }
     }
 }
