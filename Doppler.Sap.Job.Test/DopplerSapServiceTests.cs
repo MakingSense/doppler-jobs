@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
 using Doppler.Sap.Job.Service.DopplerSapService;
-using Doppler.Sap.Job.Service.Dtos;
+using Doppler.Sap.Job.Service.Entity;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -54,7 +54,7 @@ namespace Doppler.Jobs.Test
                 }, 
                 Mock.Of<ILogger<ExternalService>>());
 
-            var result = await service.SendCurrency(new List<CurrencyDto>());
+            var result = await service.SendCurrency(new List<CurrencyResponse>());
 
             Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
         }
@@ -86,7 +86,7 @@ namespace Doppler.Jobs.Test
                 },
                 Mock.Of<ILogger<ExternalService>>());
 
-            var result = await service.SendCurrency(new List<CurrencyDto>());
+            var result = await service.SendCurrency(new List<CurrencyResponse>());
 
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
         }

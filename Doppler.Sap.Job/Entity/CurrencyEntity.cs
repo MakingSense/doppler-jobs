@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace Doppler.Sap.Job.Service.Dtos
+namespace Doppler.Sap.Job.Service.Entity
 {
-    public class Entity
+    public class CurrencyEntity
     {
         public string Date { get; set; }
         public decimal SaleValue { get; set; }

@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
-using Doppler.Sap.Job.Service.Dtos;
+using Doppler.Sap.Job.Service.Entity;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Rest.Serialization;
@@ -42,7 +42,7 @@ namespace Doppler.Sap.Job.Service.DopplerSapService
             };
         }
 
-        public async Task<HttpResponseMessage> SendCurrency(IList<CurrencyDto> currencyList)
+        public async Task<HttpResponseMessage> SendCurrency(IList<CurrencyResponse> currencyList)
         {
             var uri = _dopplerSapServiceSettings.Url;
             Logger.LogInformation($"Building http request with url {uri}");

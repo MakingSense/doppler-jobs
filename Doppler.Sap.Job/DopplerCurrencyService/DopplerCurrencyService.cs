@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CrossCutting;
-using Doppler.Sap.Job.Service.Dtos;
+using Doppler.Sap.Job.Service.Entity;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -27,12 +27,12 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
             _jobConfig = jobConfig;
         }
 
-        public async Task<IList<CurrencyDto>> GetCurrencyByCode()
+        public async Task<IList<CurrencyResponse>> GetCurrencyByCode()
         {
             var cstZone = TimeZoneInfo.FindSystemTimeZoneById(_jobConfig.TimeZoneJobs);
             var cstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, cstZone);
             
-            var returnList = new List<CurrencyDto>();
+            var returnList = new List<CurrencyResponse>();
             
             foreach (var currencyCode in _dopplerCurrencySettings.CurrencyCodeList)
             {
@@ -54,9 +54,7 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
                         continue;
 
                     var json = await httpResponse.Content.ReadAsStringAsync();
-
-                    var result = JsonConvert.DeserializeObject<CurrencyDto>(json);
-                    result.Entity.CurrencyCode = currencyCode;
+                    var result = JsonConvert.DeserializeObject<CurrencyResponse>(json);
 
                     returnList.Add(result);
                 }

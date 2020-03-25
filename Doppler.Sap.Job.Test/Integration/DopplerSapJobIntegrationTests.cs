@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Doppler.Sap.Job.Service;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
 using Doppler.Sap.Job.Service.DopplerSapService;
-using Doppler.Sap.Job.Service.Dtos;
+using Doppler.Sap.Job.Service.Entity;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -27,7 +27,7 @@ namespace Doppler.Jobs.Test.Integration
         public void DopplerSapJob_ShouldBeNoSendDataToSap_WhenListIsEmpty()
         {
             _dopplerCurrencyServiceMock.Setup(x => x.GetCurrencyByCode())
-                .ReturnsAsync(new List<CurrencyDto>());
+                .ReturnsAsync(new List<CurrencyResponse>());
 
             var job = new DopplerSapJob(
                 _loggerMock.Object,
@@ -62,9 +62,9 @@ namespace Doppler.Jobs.Test.Integration
         [Fact]
         public void DopplerSapJob_ShouldBeNoSendDataToSap_WhenListIsHaveOneCurrencyArs()
         {
-            var currency = new CurrencyDto
+            var currency = new CurrencyResponse
             {
-                Entity = new Entity
+                Entity = new CurrencyEntity
                 {
                     BuyValue = 10.20M,
                     CurrencyName = "Pesos Argentinos",
@@ -74,10 +74,10 @@ namespace Doppler.Jobs.Test.Integration
                 }
             };
             _dopplerCurrencyServiceMock.Setup(x => x.GetCurrencyByCode())
-                .ReturnsAsync(new List<CurrencyDto>
+                .ReturnsAsync(new List<CurrencyResponse>
                 {
                     currency
-                } );
+                });
 
             var job = new DopplerSapJob(
                 _loggerMock.Object,

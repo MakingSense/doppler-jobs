@@ -32,7 +32,7 @@ namespace Doppler.Jobs.Test
                 {
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent($@"{{'entity':{{'date':'2020-03-18','saleValue':65.0000,
-                       'buyValue':'20.30','currencyName':'Peso Argentino'}},'success':true,'errors':{{}}}}")
+                       'buyValue':'20.30','currencyName':'Peso Argentino', 'currencyCode':'Ars'}},'success':true,'errors':{{}}}}")
                 });
 
             _httpClientFactoryMock.Setup(_ => _.CreateClient(It.IsAny<string>()))

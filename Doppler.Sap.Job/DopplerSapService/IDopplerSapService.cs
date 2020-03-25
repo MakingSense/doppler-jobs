@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Doppler.Sap.Job.Service.Dtos;
+using Doppler.Sap.Job.Service.Entity;
 
 namespace Doppler.Sap.Job.Service.DopplerSapService
 {
     public interface IDopplerSapService
     {
-        public Task<HttpResponseMessage> SendCurrency(IList<CurrencyDto> currencyList);
+        public Task<HttpResponseMessage> SendCurrency(IList<CurrencyResponse> currencyList);
     }
 }
