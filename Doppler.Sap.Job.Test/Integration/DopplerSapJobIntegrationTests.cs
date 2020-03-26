@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Doppler.Sap.Job.Service;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
 using Doppler.Sap.Job.Service.DopplerSapService;
-using Doppler.Sap.Job.Service.Entity;
+using Doppler.Sap.Job.Service.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -40,23 +40,8 @@ namespace Doppler.Jobs.Test.Integration
 
             Assert.True(true);
 
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Equals("Getting currency per each code enabled.")),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.Once);
-
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Equals("Sending data to Doppler SAP system with data: 0.")),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.Never);
+            _loggerMock.VerifyLogger(LogLevel.Information, "Getting currency per each code enabled.", Times.Once());
+            _loggerMock.VerifyLogger(LogLevel.Information, "Sending data to Doppler SAP system with data: 0.", Times.Never());
         }
 
         [Fact]
@@ -67,7 +52,7 @@ namespace Doppler.Jobs.Test.Integration
                 Entity = new CurrencyEntity
                 {
                     BuyValue = 10.20M,
-                    CurrencyName = "Pesos Argentinos",
+                    CurrencyName = "Peso Argentino",
                     SaleValue = 30.3333M,
                     CurrencyCode = "Ars",
                     Date = DateTime.UtcNow.ToShortDateString()
@@ -88,23 +73,8 @@ namespace Doppler.Jobs.Test.Integration
 
             job.Run();
 
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Equals("Getting currency per each code enabled.")),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.Once);
-
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Equals("Sending data to Doppler SAP system with data: 1.")),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.Once);
+            _loggerMock.VerifyLogger(LogLevel.Information, "Getting currency per each code enabled.", Times.Once());
+            _loggerMock.VerifyLogger(LogLevel.Information, "Sending data to Doppler SAP system with data: 1.", Times.Once());
         }
     }
 }

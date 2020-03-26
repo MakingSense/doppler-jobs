@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Doppler.Sap.Job.Service
@@ -11,14 +10,6 @@ namespace Doppler.Sap.Job.Service
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) =>
-                {
-                    Configure(services);
-                });
-
-        private static void Configure(IServiceCollection services)
-        {
-        }
+            Host.CreateDefaultBuilder(args);
     }
 }

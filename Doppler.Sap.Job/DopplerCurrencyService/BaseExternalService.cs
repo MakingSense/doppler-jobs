@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 {
-    public abstract class ExternalService
+    public abstract class BaseExternalService
     {
         protected HttpClient HttpClient;
-        protected ILogger<ExternalService> Logger;
+        protected ILogger<BaseExternalService> Logger;
 
-        protected ExternalService(HttpClient httpClient, ILogger<ExternalService> logger)
+        protected BaseExternalService(HttpClient httpClient, ILogger<BaseExternalService> logger)
         {
             HttpClient = httpClient;
             Logger = logger;

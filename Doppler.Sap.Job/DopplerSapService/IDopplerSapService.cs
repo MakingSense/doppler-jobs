@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Doppler.Sap.Job.Service.Entity;
+using Doppler.Sap.Job.Service.Entities;
 
 namespace Doppler.Sap.Job.Service.DopplerSapService
 {

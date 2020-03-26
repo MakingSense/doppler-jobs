@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CrossCutting;
-using Doppler.Sap.Job.Service.Entity;
+using Doppler.Sap.Job.Service.Entities;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 {
-    public class DopplerCurrencyService : ExternalService, IDopplerCurrencyService
+    public class DopplerCurrencyService : BaseExternalService, IDopplerCurrencyService
     {
         private readonly DopplerCurrencySettings _dopplerCurrencySettings;
         private readonly TimeZoneJobConfigurations _jobConfig;
@@ -19,7 +19,7 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings httpClientPoliciesSettings,
             DopplerCurrencySettings dopplerCurrencySettings,
-            ILogger<ExternalService> logger,
+            ILogger<BaseExternalService> logger,
             TimeZoneJobConfigurations jobConfig) : 
             base(httpClientFactory.CreateClient(httpClientPoliciesSettings.ClientName), logger)
         {

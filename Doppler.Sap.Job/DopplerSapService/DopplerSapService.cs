@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
-using Doppler.Sap.Job.Service.Entity;
+using Doppler.Sap.Job.Service.Entities;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Rest.Serialization;
@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace Doppler.Sap.Job.Service.DopplerSapService
 {
-    public class DopplerSapService : ExternalService, IDopplerSapService
+    public class DopplerSapService : BaseExternalService, IDopplerSapService
     {
         private readonly DopplerSapServiceSettings _dopplerSapServiceSettings;
         private readonly JsonSerializerSettings _serializationSettings;
@@ -22,7 +22,7 @@ namespace Doppler.Sap.Job.Service.DopplerSapService
             IHttpClientFactory httpClientFactory, 
             HttpClientPoliciesSettings httpClientPoliciesSettings,
             DopplerSapServiceSettings dopplerSapServiceSettings,
-            ILogger<ExternalService> logger) 
+            ILogger<BaseExternalService> logger) 
             : base(httpClientFactory.CreateClient(httpClientPoliciesSettings.ClientName), logger)
         {
             _dopplerSapServiceSettings = dopplerSapServiceSettings;

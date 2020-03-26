@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Doppler.Sap.Job.Service.Entity
+namespace Doppler.Sap.Job.Service.Entities
 {
     public class CurrencyEntity
     {
