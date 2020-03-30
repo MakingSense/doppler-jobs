@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using CrossCutting;
 using Doppler.Sap.Job.Service;
+using Doppler.Sap.Job.Service.Database;
 using Doppler.Sap.Job.Service.DopplerCurrencyService;
 using Doppler.Sap.Job.Service.DopplerSapService;
 using Doppler.Sap.Job.Service.Settings;
@@ -74,6 +75,11 @@ namespace Doppler.Service.Job.Server
 
             services.AddTransient<DopplerSapService>();
 
+            var connectionString = Configuration.GetConnectionString("DopplerDatabase");
+            services.AddSingleton(connectionString);
+
+            services.AddTransient<DopplerRepository>();
+
             ConfigureJob(services);
             ConfigureJobsScheduler(services, jobsConfig);
         }
@@ -122,7 +128,8 @@ namespace Doppler.Service.Job.Server
                 jobConfig.IntervalCronExpression, 
                 jobConfig.Identifier,
                 services.BuildServiceProvider().GetService<DopplerCurrencyService>(),
-                services.BuildServiceProvider().GetService<DopplerSapService>()));
+                services.BuildServiceProvider().GetService<DopplerSapService>(),
+                services.BuildServiceProvider().GetService<DopplerRepository>()));
         }
 
         private static void ConfigureJobsScheduler(IServiceCollection services, TimeZoneJobConfigurations jobsConfig)
