@@ -66,13 +66,9 @@ namespace Doppler.Service.Job.Server
             {
                 TimeZoneJobs = Configuration["TimeZoneJobs"]
             };
+            services.AddSingleton(jobsConfig);
 
-            services.AddTransient(sp => new DopplerCurrencyService(
-                sp.GetService<IHttpClientFactory>(), 
-                httpClientPolicies,
-                dopplerCurrencySettings,
-                sp.GetService<ILogger<DopplerCurrencyService>>(),
-                jobsConfig));
+            services.AddTransient<DopplerCurrencyService>();
 
             services.Configure<DopplerSapServiceSettings>(Configuration.GetSection("DopplerSapService"));
 
