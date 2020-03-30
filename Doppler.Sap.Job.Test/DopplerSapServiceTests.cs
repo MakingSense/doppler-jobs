@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Doppler.Sap.Job.Service.DopplerCurrencyService;
 using Doppler.Sap.Job.Service.DopplerSapService;
 using Doppler.Sap.Job.Service.Entities;
 using Doppler.Sap.Job.Service.Settings;
@@ -52,7 +51,7 @@ namespace Doppler.Jobs.Test
                 {
                     Url = "https://localhost:5001/SetCurrencyRate"
                 }, 
-                Mock.Of<ILogger<BaseExternalService>>());
+                Mock.Of<ILogger<DopplerSapService>>());
 
             var result = await service.SendCurrency(new List<CurrencyResponse>());
 
@@ -84,7 +83,7 @@ namespace Doppler.Jobs.Test
                 {
                     Url = "https://localhost:5001/SetCurrencyRate"
                 },
-                Mock.Of<ILogger<BaseExternalService>>());
+                Mock.Of<ILogger<DopplerSapService>>());
 
             var result = await service.SendCurrency(new List<CurrencyResponse>());
 

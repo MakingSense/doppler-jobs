@@ -10,21 +10,24 @@ using Newtonsoft.Json;
 
 namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 {
-    public class DopplerCurrencyService : BaseExternalService, IDopplerCurrencyService
+    public class DopplerCurrencyService : IDopplerCurrencyService
     {
         private readonly DopplerCurrencySettings _dopplerCurrencySettings;
         private readonly TimeZoneJobConfigurations _jobConfig;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<DopplerCurrencyService> _logger;
 
         public DopplerCurrencyService(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings httpClientPoliciesSettings,
             DopplerCurrencySettings dopplerCurrencySettings,
-            ILogger<BaseExternalService> logger,
-            TimeZoneJobConfigurations jobConfig) : 
-            base(httpClientFactory.CreateClient(httpClientPoliciesSettings.ClientName), logger)
+            ILogger<DopplerCurrencyService> logger,
+            TimeZoneJobConfigurations jobConfig)
         {
             _dopplerCurrencySettings = dopplerCurrencySettings;
             _jobConfig = jobConfig;
+            _httpClient = httpClientFactory.CreateClient(httpClientPoliciesSettings.ClientName);
+            _logger = logger;
         }
 
         public async Task<IList<CurrencyResponse>> GetCurrencyByCode()
@@ -38,7 +41,7 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
             {
                 var uri = new Uri(_dopplerCurrencySettings.Url + $"{currencyCode}/{cstTime.Year}-{cstTime.Month}-{cstTime.Day}");
 
-                Logger.LogInformation($"Building http request with url {uri}");
+                _logger.LogInformation($"Building http request with url {uri}");
                 var httpRequest = new HttpRequestMessage
                 {
                     RequestUri = uri,
@@ -47,8 +50,8 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 
                 try
                 {
-                    Logger.LogInformation("Sending request to Doppler Currency Api.");
-                    var httpResponse = await HttpClient.SendAsync(httpRequest).ConfigureAwait(false);
+                    _logger.LogInformation("Sending request to Doppler Currency Api.");
+                    var httpResponse = await _httpClient.SendAsync(httpRequest).ConfigureAwait(false);
 
                     if (!httpResponse.IsSuccessStatusCode)
                         continue;
@@ -60,7 +63,7 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e,$"Error GetCurrency for {currencyCode}.");
+                    _logger.LogError(e,$"Error GetCurrency for {currencyCode}.");
                     throw;
                 }
             }

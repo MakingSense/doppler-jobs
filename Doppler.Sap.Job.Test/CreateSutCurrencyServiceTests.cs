@@ -13,7 +13,7 @@ namespace Doppler.Jobs.Test
             IHttpClientFactory httpClientFactory = null,
             HttpClientPoliciesSettings httpClientPoliciesSettings = null,
             DopplerCurrencySettings dopplerCurrencySettings = null,
-            ILogger<BaseExternalService> logger = null,
+            ILogger<DopplerCurrencyService> loggerCurrencyService = null,
             TimeZoneJobConfigurations timeZoneJobConfigurations = null)
         {
 
@@ -21,7 +21,7 @@ namespace Doppler.Jobs.Test
                 httpClientFactory,
                 httpClientPoliciesSettings,
                 dopplerCurrencySettings,
-                logger ?? Mock.Of<ILogger<BaseExternalService>>(),
+                loggerCurrencyService ?? Mock.Of<ILogger<DopplerCurrencyService>>(),
                 timeZoneJobConfigurations ?? new TimeZoneJobConfigurations
                 {
                     TimeZoneJobs = "Argentina Standard Time"

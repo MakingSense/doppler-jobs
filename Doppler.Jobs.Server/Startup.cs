@@ -71,7 +71,7 @@ namespace Doppler.Service.Job.Server
                 sp.GetService<IHttpClientFactory>(), 
                 httpClientPolicies,
                 dopplerCurrencySettings,
-                sp.GetService<ILogger<BaseExternalService>>(),
+                sp.GetService<ILogger<DopplerCurrencyService>>(),
                 jobsConfig));
 
             var dopplerSapServiceSettings = new DopplerSapServiceSettings();
@@ -82,7 +82,7 @@ namespace Doppler.Service.Job.Server
                 sp.GetService<IHttpClientFactory>(),
                 httpClientPolicies,
                 dopplerSapServiceSettings,
-                sp.GetService<ILogger<BaseExternalService>>()));
+                sp.GetService<ILogger<DopplerSapService>>()));
 
             ConfigureJob(services);
             ConfigureJobsScheduler(services, jobsConfig);
