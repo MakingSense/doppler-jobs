@@ -2,7 +2,7 @@
 
 namespace Doppler.Sap.Job.Service.Settings
 {
-    public class DopplerCurrencySettings
+    public class DopplerCurrencyServiceSettings
     {
         public string Url { get; set; }
         public List<string> CurrencyCodeList { get; set; }

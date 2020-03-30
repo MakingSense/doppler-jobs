@@ -12,7 +12,7 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 {
     public class DopplerCurrencyService : IDopplerCurrencyService
     {
-        private readonly DopplerCurrencySettings _dopplerCurrencySettings;
+        private readonly DopplerCurrencyServiceSettings _dopplerCurrencySettings;
         private readonly TimeZoneJobConfigurations _jobConfig;
         private readonly HttpClient _httpClient;
         private readonly ILogger<DopplerCurrencyService> _logger;
@@ -20,7 +20,7 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
         public DopplerCurrencyService(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings httpClientPoliciesSettings,
-            DopplerCurrencySettings dopplerCurrencySettings,
+            DopplerCurrencyServiceSettings dopplerCurrencySettings,
             ILogger<DopplerCurrencyService> logger,
             TimeZoneJobConfigurations jobConfig)
         {

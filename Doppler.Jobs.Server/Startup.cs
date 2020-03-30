@@ -54,12 +54,12 @@ namespace Doppler.Service.Job.Server
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
-            var dopplerCurrencySettings = new DopplerCurrencySettings
+            var dopplerCurrencySettings = new DopplerCurrencyServiceSettings
             {
-                CurrencyCodeList = Configuration.GetSection("DopplerCurrencyService:CurrencyCode")
+                CurrencyCodeList = Configuration.GetSection("DopplerCurrencyServiceSettings:CurrencyCode")
                     .Get<List<string>>()
             };
-            Configuration.GetSection("DopplerCurrencyService").Bind(dopplerCurrencySettings);
+            Configuration.GetSection(nameof(DopplerCurrencyServiceSettings)).Bind(dopplerCurrencySettings);
             services.AddSingleton(dopplerCurrencySettings);
 
             var jobsConfig = new TimeZoneJobConfigurations
@@ -70,7 +70,7 @@ namespace Doppler.Service.Job.Server
 
             services.AddTransient<DopplerCurrencyService>();
 
-            services.Configure<DopplerSapServiceSettings>(Configuration.GetSection("DopplerSapService"));
+            services.Configure<DopplerSapServiceSettings>(Configuration.GetSection(nameof(DopplerSapServiceSettings)));
 
             services.AddTransient<DopplerSapService>();
 
@@ -113,8 +113,8 @@ namespace Doppler.Service.Job.Server
         {
             var jobConfig = new RecurringJobConfiguration
             {
-                Identifier = Configuration["Jobs:WorkerServiceJob:Identifier"],
-                IntervalCronExpression = Configuration["Jobs:WorkerServiceJob:IntervalCronExpression"]
+                Identifier = Configuration["Jobs:SapServiceJob:Identifier"],
+                IntervalCronExpression = Configuration["Jobs:SapServiceJob:IntervalCronExpression"]
             };
 
             services.AddTransient(sp => new DopplerSapJob(

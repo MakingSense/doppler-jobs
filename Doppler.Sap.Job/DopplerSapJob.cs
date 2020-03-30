@@ -32,11 +32,7 @@ namespace Doppler.Sap.Job.Service
         }
 
         [AutomaticRetry(Attempts = 0)]
-        public object Run()
-        {
-            var a = RunAsync().GetAwaiter().GetResult();
-            return a;
-        }
+        public object Run() => RunAsync().GetAwaiter().GetResult();
 
         private async Task<object> RunAsync()
         {

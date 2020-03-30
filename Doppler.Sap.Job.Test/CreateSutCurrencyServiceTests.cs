@@ -12,7 +12,7 @@ namespace Doppler.Jobs.Test
         public static DopplerCurrencyService CreateSut(
             IHttpClientFactory httpClientFactory = null,
             HttpClientPoliciesSettings httpClientPoliciesSettings = null,
-            DopplerCurrencySettings dopplerCurrencySettings = null,
+            DopplerCurrencyServiceSettings dopplerCurrencySettings = null,
             ILogger<DopplerCurrencyService> loggerCurrencyService = null,
             TimeZoneJobConfigurations timeZoneJobConfigurations = null)
         {

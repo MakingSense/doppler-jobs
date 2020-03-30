@@ -32,7 +32,7 @@ namespace Doppler.Jobs.Test
                 {
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent($@"{{'entity':{{'date':'2020-03-18','saleValue':65.0000,
-                       'buyValue':'20.30','currencyName':'Peso Argentino', 'currencyCode':'Ars'}},'success':true,'errors':{{}}}}")
+                       'buyValue':'20.30','currencyName':'Peso Argentino', 'currencyCode':'ARS'}},'success':true,'errors':{{}}}}")
                 });
 
             _httpClientFactoryMock.Setup(_ => _.CreateClient(It.IsAny<string>()))
@@ -44,10 +44,10 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerCurrencySettings
+                new DopplerCurrencyServiceSettings
                 {
                     Url = "https://localhost:5001/Currency/",
-                    CurrencyCodeList = new List<string> { "Ars" }
+                    CurrencyCodeList = new List<string> { "ARS" }
                 }
             );
 
@@ -60,7 +60,7 @@ namespace Doppler.Jobs.Test
             Assert.Equal(65.0000M, currency.SaleValue);
             Assert.Equal(20.30M, currency.BuyValue);
             Assert.Equal("Peso Argentino", currency.CurrencyName);
-            Assert.Equal("Ars", currency.CurrencyCode);
+            Assert.Equal("ARS", currency.CurrencyCode);
         }
 
         [Fact]
@@ -83,10 +83,10 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerCurrencySettings
+                new DopplerCurrencyServiceSettings
                 {
                     Url = "https://localhost:5001/Currency/",
-                    CurrencyCodeList = new List<string> { "ars" }
+                    CurrencyCodeList = new List<string> { "ARS" }
                 }
             );
 
