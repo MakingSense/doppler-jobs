@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Doppler.Sap.Job.Service.Entities;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Rest.Serialization;
 using Newtonsoft.Json;
 
@@ -22,10 +23,10 @@ namespace Doppler.Sap.Job.Service.DopplerSapService
         public DopplerSapService(
             IHttpClientFactory httpClientFactory, 
             HttpClientPoliciesSettings httpClientPoliciesSettings,
-            DopplerSapServiceSettings dopplerSapServiceSettings,
+            IOptionsMonitor<DopplerSapServiceSettings> dopplerSapServiceSettings,
             ILogger<DopplerSapService> logger)
         {
-            _dopplerSapServiceSettings = dopplerSapServiceSettings;
+            _dopplerSapServiceSettings = dopplerSapServiceSettings.CurrentValue;
             _httpClient = httpClientFactory.CreateClient(httpClientPoliciesSettings.ClientName);
             _logger = logger;
             _serializationSettings = new JsonSerializerSettings

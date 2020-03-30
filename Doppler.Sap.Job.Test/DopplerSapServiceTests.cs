@@ -7,6 +7,7 @@ using Doppler.Sap.Job.Service.DopplerSapService;
 using Doppler.Sap.Job.Service.Entities;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -18,9 +19,17 @@ namespace Doppler.Jobs.Test
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
+        private readonly Mock<IOptionsMonitor<DopplerSapServiceSettings>> _dopplerSapServiceSettingsMock;
 
         public DopplerSapServiceTests()
         {
+            _dopplerSapServiceSettingsMock = new Mock<IOptionsMonitor<DopplerSapServiceSettings>>();
+            _dopplerSapServiceSettingsMock.Setup(x => x.CurrentValue)
+                .Returns(new DopplerSapServiceSettings
+                {
+                    Url = "https://localhost:5001/SetCurrencyRate"
+                });
+
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
@@ -47,10 +56,7 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerSapServiceSettings()
-                {
-                    Url = "https://localhost:5001/SetCurrencyRate"
-                }, 
+                _dopplerSapServiceSettingsMock.Object, 
                 Mock.Of<ILogger<DopplerSapService>>());
 
             var result = await service.SendCurrency(new List<CurrencyResponse>());
@@ -79,10 +85,7 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerSapServiceSettings
-                {
-                    Url = "https://localhost:5001/SetCurrencyRate"
-                },
+                _dopplerSapServiceSettingsMock.Object,
                 Mock.Of<ILogger<DopplerSapService>>());
 
             var result = await service.SendCurrency(new List<CurrencyResponse>());

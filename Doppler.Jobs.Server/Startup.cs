@@ -74,15 +74,9 @@ namespace Doppler.Service.Job.Server
                 sp.GetService<ILogger<DopplerCurrencyService>>(),
                 jobsConfig));
 
-            var dopplerSapServiceSettings = new DopplerSapServiceSettings();
-            Configuration.GetSection("DopplerSapService").Bind(dopplerSapServiceSettings);
-            services.AddSingleton(dopplerSapServiceSettings);
+            services.Configure<DopplerSapServiceSettings>(Configuration.GetSection("DopplerSapService"));
 
-            services.AddTransient(sp => new DopplerSapService(
-                sp.GetService<IHttpClientFactory>(),
-                httpClientPolicies,
-                dopplerSapServiceSettings,
-                sp.GetService<ILogger<DopplerSapService>>()));
+            services.AddTransient<DopplerSapService>();
 
             ConfigureJob(services);
             ConfigureJobsScheduler(services, jobsConfig);
