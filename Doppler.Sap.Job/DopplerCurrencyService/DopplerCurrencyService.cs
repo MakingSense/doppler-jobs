@@ -39,18 +39,18 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
             
             foreach (var currencyCode in _dopplerCurrencySettings.CurrencyCodeList)
             {
-                var uri = new Uri(_dopplerCurrencySettings.Url + $"{currencyCode}/{cstTime.Year}-{cstTime.Month}-{cstTime.Day}");
+                try { 
+                    var uri = new Uri(_dopplerCurrencySettings.Url + $"{currencyCode}/{cstTime.Year}-{cstTime.Month}-{cstTime.Day}");
+                    
+                    _logger.LogInformation($"Building http request with url {uri}"); 
+                    var httpRequest = new HttpRequestMessage 
+                    {
+                        RequestUri = uri, 
+                        Method = new HttpMethod("GET")
 
-                _logger.LogInformation($"Building http request with url {uri}");
-                var httpRequest = new HttpRequestMessage
-                {
-                    RequestUri = uri,
-                    Method = new HttpMethod("GET")
-                };
-
-                try
-                {
-                    _logger.LogInformation("Sending request to Doppler Currency Api.");
+                    };
+                    
+                    _logger.LogInformation("Sending request to Doppler Currency Api."); 
                     var httpResponse = await _httpClient.SendAsync(httpRequest).ConfigureAwait(false);
 
                     if (!httpResponse.IsSuccessStatusCode)
