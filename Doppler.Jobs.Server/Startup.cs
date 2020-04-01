@@ -19,6 +19,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
+using Serilog;
+using Serilog.Events;
 
 namespace Doppler.Service.Job.Server
 {
@@ -97,6 +99,12 @@ namespace Doppler.Service.Job.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .WriteTo.File("Logs\\DopplerJobs.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

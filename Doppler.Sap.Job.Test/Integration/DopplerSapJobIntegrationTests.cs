@@ -41,7 +41,7 @@ namespace Doppler.Jobs.Test.Integration
             Assert.True(true);
 
             _loggerMock.VerifyLogger(LogLevel.Information, "Getting currency per each code enabled.", Times.Once());
-            _loggerMock.VerifyLogger(LogLevel.Information, "Sending data to Doppler SAP system with data: 0.", Times.Never());
+            _loggerMock.VerifyLogger(LogLevel.Information, "Sending data to Doppler SAP system.", Times.Never());
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Doppler.Jobs.Test.Integration
             job.Run();
 
             _loggerMock.VerifyLogger(LogLevel.Information, "Getting currency per each code enabled.", Times.Once());
-            _loggerMock.VerifyLogger(LogLevel.Information, "Sending data to Doppler SAP system with data: 1.", Times.Once());
+            _loggerMock.VerifyLogger(LogLevel.Information, "Sending data to Doppler SAP system.", Times.Once());
         }
     }
 }
