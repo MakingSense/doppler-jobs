@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CrossCutting;
 using Doppler.Sap.Job.Service.Entities;
 using Doppler.Sap.Job.Service.Settings;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using TimeZoneConverter;
 
 namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 {
@@ -32,7 +34,10 @@ namespace Doppler.Sap.Job.Service.DopplerCurrencyService
 
         public async Task<IList<CurrencyResponse>> GetCurrencyByCode()
         {
-            var cstZone = TimeZoneInfo.FindSystemTimeZoneById(_jobConfig.TimeZoneJobs);
+            var tz = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? _jobConfig.TimeZoneJobs 
+                : TZConvert.WindowsToIana(_jobConfig.TimeZoneJobs);
+
+            var cstZone = TimeZoneInfo.FindSystemTimeZoneById(tz);
             var cstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, cstZone);
             
             var returnList = new List<CurrencyResponse>();

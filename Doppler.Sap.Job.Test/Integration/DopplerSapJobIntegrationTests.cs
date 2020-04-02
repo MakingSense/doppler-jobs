@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Doppler.Jobs.Test.Integration
 {
-    public class DopplerSapJobIntegrationTests : IClassFixture<TestServerFixture>
+    public class DopplerSapJobIntegrationTests
     {
         private readonly Mock<IDopplerCurrencyService> _dopplerCurrencyServiceMock;
         private readonly Mock<ILogger<DopplerSapJob>> _loggerMock;
