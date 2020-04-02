@@ -20,7 +20,7 @@
     "Doppler.Worker": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "hangfire",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

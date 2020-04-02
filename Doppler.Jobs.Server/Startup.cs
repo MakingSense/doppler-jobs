@@ -99,10 +99,12 @@ namespace Doppler.Service.Job.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .WriteTo.File("Logs\\DopplerJobs.log", rollingInterval: RollingInterval.Day)
+                .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
             if (env.IsDevelopment())
