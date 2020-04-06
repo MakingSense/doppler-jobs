@@ -75,8 +75,7 @@ namespace Doppler.Service.Job.Server
 
             services.AddTransient<DopplerSapService>();
 
-            var connectionString = Configuration.GetConnectionString("DopplerDatabase");
-            services.AddSingleton(connectionString);
+            services.Configure<DopplerRepositorySettings>(Configuration.GetSection(nameof(DopplerRepositorySettings)));
 
             services.AddTransient<DopplerRepository>();
 
