@@ -50,7 +50,7 @@ namespace Doppler.Sap.Job.Service
             await _dopplerSapService.SendCurrency(currencyDto);
 
             _logger.LogInformation("Getting data from Doppler database.");
-            var billingData = await _dopplerRepository.GetBillingClientInformation();
+            var billingData = await _dopplerRepository.GetUserBillingInformation();
 
             _logger.LogInformation($"Sending Billing data to Doppler SAP system {billingData.Count()}.");
             //TODO: Create a service to send data to SAP system with billingData variable
