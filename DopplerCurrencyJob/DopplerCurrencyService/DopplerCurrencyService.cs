@@ -6,6 +6,7 @@ using CrossCutting;
 using CrossCutting.DopplerSapService.Entities;
 using Doppler.Currency.Job.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Doppler.Currency.Job.DopplerCurrencyService
@@ -21,11 +22,11 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
         public DopplerCurrencyService(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings httpClientPoliciesSettings,
-            DopplerCurrencyServiceSettings dopplerCurrencySettings,
+            IOptionsMonitor<DopplerCurrencyServiceSettings> dopplerCurrencySettings,
             ILogger<DopplerCurrencyService> logger,
             TimeZoneJobConfigurations jobConfig)
         {
-            _dopplerCurrencySettings = dopplerCurrencySettings;
+            _dopplerCurrencySettings = dopplerCurrencySettings.CurrentValue;
             _jobConfig = jobConfig;
             _logger = logger;
             _httpClientFactory = httpClientFactory;

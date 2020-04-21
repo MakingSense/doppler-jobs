@@ -8,6 +8,7 @@ using CrossCutting;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -19,12 +20,20 @@ namespace Doppler.Jobs.Test
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
+        private readonly Mock<IOptionsMonitor<DopplerCurrencyServiceSettings>> _dopplerCurrencyServiceSettingsMock;
 
         public DopplerCurrencyServiceTests()
         {
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+            _dopplerCurrencyServiceSettingsMock = new Mock<IOptionsMonitor<DopplerCurrencyServiceSettings>>();
+            _dopplerCurrencyServiceSettingsMock.Setup(x => x.CurrentValue)
+                .Returns(new DopplerCurrencyServiceSettings
+                {
+                    Url = "https://localhost:5001/Currency/",
+                    CurrencyCodeList = new List<string> {"ARS"}
+                });
         }
 
         [Fact]
@@ -49,11 +58,7 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerCurrencyServiceSettings
-                {
-                    Url = "https://localhost:5001/Currency/",
-                    CurrencyCodeList = new List<string> {"ARS"}
-                }
+                _dopplerCurrencyServiceSettingsMock.Object
             );
 
             var result = await service.GetCurrencyByCode();
@@ -89,11 +94,7 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerCurrencyServiceSettings
-                {
-                    Url = "https://localhost:5001/Currency/",
-                    CurrencyCodeList = new List<string> {"ARS"}
-                }
+                _dopplerCurrencyServiceSettingsMock.Object
             );
 
             var result = await service.GetCurrencyByCode();
@@ -106,16 +107,19 @@ namespace Doppler.Jobs.Test
         {
             var loggerMock = new Mock<ILogger<DopplerCurrencyService>>();
 
+            _dopplerCurrencyServiceSettingsMock.Setup(x => x.CurrentValue)
+                .Returns(new DopplerCurrencyServiceSettings
+                {
+                    CurrencyCodeList = new List<string> { "ARS" }
+                });
+
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
                 new HttpClientPoliciesSettings
                 {
                     ClientName = "test"
                 },
-                new DopplerCurrencyServiceSettings
-                {
-                    CurrencyCodeList = new List<string> {"ARS"}
-                },
+                _dopplerCurrencyServiceSettingsMock.Object,
                 loggerMock.Object
             );
 
@@ -147,11 +151,7 @@ namespace Doppler.Jobs.Test
                 {
                     ClientName = "test"
                 },
-                new DopplerCurrencyServiceSettings
-                {
-                    Url = "https://localhost:5001/Currency/",
-                    CurrencyCodeList = new List<string> { "ARS" }
-                },
+                _dopplerCurrencyServiceSettingsMock.Object,
                 loggerMock.Object
             );
 

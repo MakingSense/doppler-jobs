@@ -20,13 +20,13 @@ namespace Doppler.Jobs.Test
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
-        private readonly Mock<IOptionsMonitor<DopplerSapServiceSettings>> _dopplerSapServiceSettingsMock;
+        private readonly Mock<IOptionsMonitor<DopplerSapConfiguration>> _dopplerSapServiceSettingsMock;
 
         public DopplerSapServiceTests()
         {
-            _dopplerSapServiceSettingsMock = new Mock<IOptionsMonitor<DopplerSapServiceSettings>>();
+            _dopplerSapServiceSettingsMock = new Mock<IOptionsMonitor<DopplerSapConfiguration>>();
             _dopplerSapServiceSettingsMock.Setup(x => x.CurrentValue)
-                .Returns(new DopplerSapServiceSettings
+                .Returns(new DopplerSapConfiguration
                 {
                     Url = "https://localhost:5001/SetCurrencyRate"
                 });

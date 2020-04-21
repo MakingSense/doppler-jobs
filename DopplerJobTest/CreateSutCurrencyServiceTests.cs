@@ -3,6 +3,7 @@ using CrossCutting;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Doppler.Jobs.Test
@@ -12,7 +13,7 @@ namespace Doppler.Jobs.Test
         public static DopplerCurrencyService CreateSut(
             IHttpClientFactory httpClientFactory = null,
             HttpClientPoliciesSettings httpClientPoliciesSettings = null,
-            DopplerCurrencyServiceSettings dopplerCurrencySettings = null,
+            IOptionsMonitor<DopplerCurrencyServiceSettings> dopplerCurrencySettings = null,
             ILogger<DopplerCurrencyService> loggerCurrencyService = null,
             TimeZoneJobConfigurations timeZoneJobConfigurations = null)
         {

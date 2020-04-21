@@ -1,6 +1,6 @@
 ﻿namespace CrossCutting.DopplerSapService.Settings
 {
-    public class DopplerSapServiceSettings
+    public class DopplerSapConfiguration
     {
         public string Url { get; set; }
     }

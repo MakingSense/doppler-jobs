@@ -15,7 +15,7 @@ namespace CrossCutting.DopplerSapService
 {
     public class DopplerSapService : IDopplerSapService
     {
-        private readonly DopplerSapServiceSettings _dopplerSapServiceSettings;
+        private readonly DopplerSapConfiguration _dopplerSapServiceSettings;
         private readonly JsonSerializerSettings _serializationSettings;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<DopplerSapService> _logger;
@@ -24,7 +24,7 @@ namespace CrossCutting.DopplerSapService
         public DopplerSapService(
             IHttpClientFactory httpClientFactory,
             HttpClientPoliciesSettings httpClientPoliciesSettings,
-            IOptionsMonitor<DopplerSapServiceSettings> dopplerSapServiceSettings,
+            IOptionsMonitor<DopplerSapConfiguration> dopplerSapServiceSettings,
             ILogger<DopplerSapService> logger)
         {
             _dopplerSapServiceSettings = dopplerSapServiceSettings.CurrentValue;

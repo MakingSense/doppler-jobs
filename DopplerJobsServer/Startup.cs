@@ -17,7 +17,6 @@ using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Extensions.Http;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -55,13 +54,7 @@ namespace Doppler.Jobs.Server
                 .ConfigurePrimaryHttpMessageHandler(() => handlerHttpClient)
                 .AddTransientHttpErrorPolicy(builder => GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
-            var dopplerCurrencySettings = new DopplerCurrencyServiceSettings
-            {
-                CurrencyCodeList = Configuration.GetSection("DopplerCurrencyServiceSettings:CurrencyCode")
-                    .Get<List<string>>()
-            };
-            Configuration.GetSection(nameof(DopplerCurrencyServiceSettings)).Bind(dopplerCurrencySettings);
-            services.AddSingleton(dopplerCurrencySettings);
+            services.Configure<DopplerCurrencyServiceSettings>(Configuration.GetSection(nameof(DopplerCurrencyServiceSettings)));
 
             var jobsConfig = new TimeZoneJobConfigurations
             {
@@ -70,7 +63,7 @@ namespace Doppler.Jobs.Server
             services.AddSingleton(jobsConfig);
             services.AddTransient<IDopplerCurrencyService, DopplerCurrencyService>();
 
-            services.Configure<DopplerSapServiceSettings>(Configuration.GetSection(nameof(DopplerSapServiceSettings)));
+            services.Configure<DopplerSapConfiguration>(Configuration.GetSection(nameof(DopplerSapConfiguration)));
             services.AddTransient<IDopplerSapService, DopplerSapService>();
 
             services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
