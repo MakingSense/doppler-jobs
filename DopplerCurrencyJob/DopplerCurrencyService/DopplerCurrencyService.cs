@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CrossCutting;
 using CrossCutting.DopplerSapService.Entities;
 using Dapper;
+using Doppler.Currency.Job.Authorization;
 using Doppler.Currency.Job.Enums;
 using Doppler.Currency.Job.Settings;
 using Doppler.Database;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace Doppler.Currency.Job.DopplerCurrencyService
@@ -20,23 +24,29 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
         private readonly TimeZoneJobConfigurations _jobConfig;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<DopplerCurrencyService> _logger;
-        private readonly HttpClientPoliciesSettings _httpClientPoliciesSettings;
         private readonly IDbConnectionFactory _dbConnectionFactory;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly JwtOptions _jwtOptions;
+        private readonly SigningCredentials _signingCredentials;
 
         public DopplerCurrencyService(
             IHttpClientFactory httpClientFactory,
-            HttpClientPoliciesSettings httpClientPoliciesSettings,
             IOptionsMonitor<DopplerCurrencyServiceSettings> dopplerCurrencySettings,
             ILogger<DopplerCurrencyService> logger,
             TimeZoneJobConfigurations jobConfig,
-            IDbConnectionFactory dbConnectionFactory)
+            IDbConnectionFactory dbConnectionFactory,
+            IOptions<JwtOptions> jwtOptions,
+            SigningCredentials signingCredentials,
+            JwtSecurityTokenHandler tokenHandler)
         {
             _dopplerCurrencySettings = dopplerCurrencySettings.CurrentValue;
             _jobConfig = jobConfig;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _httpClientPoliciesSettings = httpClientPoliciesSettings;
             _dbConnectionFactory = dbConnectionFactory;
+            _jwtOptions = jwtOptions.Value;
+            _signingCredentials = signingCredentials;
+            _tokenHandler = tokenHandler;
         }
 
         public async Task<IList<CurrencyResponse>> GetCurrencyByCode()
@@ -145,7 +155,23 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
 
             _logger.LogInformation("Sending request to Doppler Currency Api.");
             var client = _httpClientFactory.CreateClient();
+            var jwtToken = CreateJwtToken();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
             return await client.SendAsync(httpRequest).ConfigureAwait(false);
+        }
+
+        private string CreateJwtToken()
+        {
+            var now = DateTime.UtcNow;
+
+            var jwtToken = _tokenHandler.CreateToken(new SecurityTokenDescriptor
+            {
+                Expires = now.AddDays(_jwtOptions.TokenLifeTime),
+                SigningCredentials = _signingCredentials
+            }) as JwtSecurityToken;
+
+            return _tokenHandler.WriteToken(jwtToken);
         }
     }
 }

@@ -27,5 +27,15 @@
     <ProjectReference Include="..\DopplerCurrencyJob\Doppler.Currency.Job.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Resources\Jwt\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\Jwt\key.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

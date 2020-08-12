@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CrossCutting.DopplerSapService;
+using CrossCutting.DopplerSapService.Entities;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Hangfire;
 using Microsoft.Extensions.Logging;
@@ -24,20 +26,23 @@ namespace Doppler.Currency.Job
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 0)]
-        public object Run() => RunAsync().GetAwaiter().GetResult();
+        public IList<CurrencyResponse> Run() => RunAsync().GetAwaiter().GetResult();
 
-        private async Task<object> RunAsync()
+        private async Task<IList<CurrencyResponse>> RunAsync()
         {
             _logger.LogInformation("Getting currency per each code enabled.");
             var currencyDto = await _dopplerCurrencyService.GetCurrencyByCode();
 
             if (!currencyDto.Any())
-                return "Non-existent currencies for this date, please check for errors";
+            {
+                _logger.LogInformation("Non-existent currencies for this date, please check for errors.");
+                return new List<CurrencyResponse>();
+            }
 
             _logger.LogInformation("Sending currency data to Doppler SAP system.");
             await _dopplerSapService.SendCurrency(currencyDto);
 
-            _logger.LogInformation("Insert currency data into Doppler Database");
+            _logger.LogInformation("Insert currency data into Doppler Database.");
             await _dopplerCurrencyService.InsertCurrencyIntoDataBase(currencyDto);
 
             return currencyDto;

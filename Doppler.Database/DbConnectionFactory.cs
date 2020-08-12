@@ -1,10 +1,12 @@
 ﻿using System.Data.Common;
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Doppler.Database
 {
+    [ExcludeFromCodeCoverage]
     public class DbConnectionFactory: IDbConnectionFactory
     {
         private readonly IConfiguration _configuration;

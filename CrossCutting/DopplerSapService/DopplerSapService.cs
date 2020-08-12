@@ -19,18 +19,15 @@ namespace CrossCutting.DopplerSapService
         private readonly JsonSerializerSettings _serializationSettings;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<DopplerSapService> _logger;
-        private readonly HttpClientPoliciesSettings _httpClientPoliciesSettings;
 
         public DopplerSapService(
             IHttpClientFactory httpClientFactory,
-            HttpClientPoliciesSettings httpClientPoliciesSettings,
             IOptionsMonitor<DopplerSapConfiguration> dopplerSapServiceSettings,
             ILogger<DopplerSapService> logger)
         {
             _dopplerSapServiceSettings = dopplerSapServiceSettings.CurrentValue;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
-            _httpClientPoliciesSettings = httpClientPoliciesSettings;
             _serializationSettings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,

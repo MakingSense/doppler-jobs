@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using CrossCutting;
+using Doppler.Currency.Job.Authorization;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -21,6 +23,8 @@ namespace Doppler.Jobs.Test
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
         private readonly Mock<IOptionsMonitor<DopplerCurrencyServiceSettings>> _dopplerCurrencyServiceSettingsMock;
+        private readonly Mock<IOptions<JwtOptions>> _jwtOptionMock;
+        private readonly SigningCredentials _signingCredentials;
 
         public DopplerCurrencyServiceTests()
         {
@@ -34,6 +38,19 @@ namespace Doppler.Jobs.Test
                     Url = "https://localhost:5001/Currency/",
                     CurrencyCodeList = new List<string> {"ARS"},
                     HolidayRetryCountLimit = 5
+                });
+
+            var sKey = new byte[32];
+            var sRng = RandomNumberGenerator.Create();
+            sRng.GetBytes(sKey);
+            var securityKey = new SymmetricSecurityKey(sKey) { KeyId = Guid.NewGuid().ToString() };
+            _signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
+
+            _jwtOptionMock = new Mock<IOptions<JwtOptions>>();
+            _jwtOptionMock.Setup(x => x.Value)
+                .Returns(new JwtOptions
+                {
+                    TokenLifeTime = 1
                 });
         }
 
@@ -55,12 +72,9 @@ namespace Doppler.Jobs.Test
 
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
-                new HttpClientPoliciesSettings
-                {
-                    ClientName = "test"
-                },
-                _dopplerCurrencyServiceSettingsMock.Object
-            );
+                _dopplerCurrencyServiceSettingsMock.Object,
+                jwtOptions: _jwtOptionMock.Object,
+                signingCredentials: _signingCredentials);
 
             var result = await service.GetCurrencyByCode();
 
@@ -84,6 +98,7 @@ namespace Doppler.Jobs.Test
                 {
                     StatusCode = HttpStatusCode.BadRequest,
                     Content = new StringContent("")
+
                 });
 
             _httpClientFactoryMock.Setup(_ => _.CreateClient(It.IsAny<string>()))
@@ -91,12 +106,9 @@ namespace Doppler.Jobs.Test
 
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
-                new HttpClientPoliciesSettings
-                {
-                    ClientName = "test"
-                },
-                _dopplerCurrencyServiceSettingsMock.Object
-            );
+                _dopplerCurrencyServiceSettingsMock.Object,
+                jwtOptions: _jwtOptionMock.Object,
+                signingCredentials: _signingCredentials);
 
             var result = await service.GetCurrencyByCode();
 
@@ -116,13 +128,10 @@ namespace Doppler.Jobs.Test
 
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
-                new HttpClientPoliciesSettings
-                {
-                    ClientName = "test"
-                },
                 _dopplerCurrencyServiceSettingsMock.Object,
-                loggerMock.Object
-            );
+                loggerMock.Object,
+                jwtOptions: _jwtOptionMock.Object,
+                signingCredentials: _signingCredentials);
 
             var exception = await Assert.ThrowsAnyAsync<Exception>(() => service.GetCurrencyByCode());
 
@@ -148,13 +157,10 @@ namespace Doppler.Jobs.Test
 
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
-                new HttpClientPoliciesSettings
-                {
-                    ClientName = "test"
-                },
                 _dopplerCurrencyServiceSettingsMock.Object,
-                loggerMock.Object
-            );
+                jwtOptions: _jwtOptionMock.Object,
+                loggerCurrencyService:loggerMock.Object,
+                signingCredentials: _signingCredentials);
 
             var exception = await Assert.ThrowsAnyAsync<Exception>(() => service.GetCurrencyByCode());
 
@@ -178,12 +184,9 @@ namespace Doppler.Jobs.Test
 
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
-                new HttpClientPoliciesSettings
-                {
-                    ClientName = "test"
-                },
-                _dopplerCurrencyServiceSettingsMock.Object
-            ); 
+                _dopplerCurrencyServiceSettingsMock.Object,
+                jwtOptions: _jwtOptionMock.Object,
+                signingCredentials: _signingCredentials);
 
             var result = await service.GetCurrencyByCode();
 
@@ -195,10 +198,10 @@ namespace Doppler.Jobs.Test
         [Fact]
         public async Task DopplerCurrencyService__ShouldBeHttpStatusCodeOk_WhenDateIsHolidayAndStatusCodeIsOkAfterRetry()
         {
-            var failedUrlSegment = String.Format("{0}-{1}-{2}", DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day);
+            var failedUrlSegment = $"{DateTime.UtcNow.Year}-{DateTime.UtcNow.Month}-{DateTime.UtcNow.Day}";
 
             var previousDay = DateTime.UtcNow.DayOfWeek == DayOfWeek.Monday ? DateTime.UtcNow.AddDays(-3) : DateTime.UtcNow.AddDays(-1);
-            var SuccessfulUrlSegment = String.Format("{0}-{1}-{2}", previousDay.Year, previousDay.Month, previousDay.Day) ;
+            var successfulUrlSegment = $"{previousDay.Year}-{previousDay.Month}-{previousDay.Day}";
 
             _httpMessageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x => x.RequestUri.AbsolutePath.EndsWith(failedUrlSegment)),
@@ -210,7 +213,7 @@ namespace Doppler.Jobs.Test
                 });
 
             _httpMessageHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x => x.RequestUri.AbsolutePath.EndsWith(SuccessfulUrlSegment)),
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x => x.RequestUri.AbsolutePath.EndsWith(successfulUrlSegment)),
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
                 {
@@ -224,12 +227,9 @@ namespace Doppler.Jobs.Test
 
             var service = CreateSutCurrencyServiceTests.CreateSut(
                 _httpClientFactoryMock.Object,
-                new HttpClientPoliciesSettings
-                {
-                    ClientName = "test",
-                },
-                _dopplerCurrencyServiceSettingsMock.Object
-            );
+                _dopplerCurrencyServiceSettingsMock.Object,
+                jwtOptions: _jwtOptionMock.Object,
+                signingCredentials: _signingCredentials);
 
             var result = await service.GetCurrencyByCode();
 

@@ -17,10 +17,12 @@ using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Extensions.Http;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
+using Doppler.Currency.Job.Authorization;
 using Doppler.Database;
 using Microsoft.AspNetCore.Http;
 
@@ -73,6 +75,10 @@ namespace Doppler.Jobs.Server
             services.AddTransient<IDopplerRepository, DopplerRepository>();
 
             ConfigureJobsScheduler();
+
+            services.AddTransient<JwtSecurityTokenHandler>();
+            services.Configure<JwtOptions>(Configuration.GetSection(nameof(JwtOptions)));
+            services.AddJwtToken();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -84,8 +90,9 @@ namespace Doppler.Jobs.Server
 
             app.UseStaticFiles();
 
-            app.UseHangfireDashboard("",new DashboardOptions
+            app.UseHangfireDashboard("/hangfire",new DashboardOptions
             {
+                PrefixPath = !env.IsDevelopment() ? "/jobs" : null,
                 Authorization = new[] { new HangfireAuthorizationFilter() }
             });
             app.UseHangfireServer(new BackgroundJobServerOptions
