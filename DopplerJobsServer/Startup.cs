@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
 using Doppler.Database;
+using Microsoft.AspNetCore.Http;
 
 namespace Doppler.Jobs.Server
 {
@@ -81,7 +82,9 @@ namespace Doppler.Jobs.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            app.UseStaticFiles();
+
+            app.UseHangfireDashboard("",new DashboardOptions
             {
                 Authorization = new[] { new HangfireAuthorizationFilter() }
             });

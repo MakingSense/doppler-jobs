@@ -30,6 +30,5 @@ WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
 ARG version=unknown
-# TODO: configure static files in the service and copy version.txt to the right folder
-RUN echo $version > /app/version.txt
+RUN echo $version > /app/wwwroot/version.txt
 ENTRYPOINT ["dotnet", "Doppler.Jobs.Server.dll"]

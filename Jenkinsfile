@@ -18,15 +18,28 @@ pipeline {
                 .'''
             }
         }
-        stage('Publish pre release version images') {
+        stage('Publish pre-release images from pull request') {
             when {
-                expression {
-                    return !isVersionTag(readCurrentTag())
-                }
+                changeRequest target: 'master'
             }
             steps {
-                // It is a temporal step, in the future we will only publish final version images
-                sh 'sh build-n-publish.sh ${GIT_COMMIT} v0.0.0 commit-${GIT_COMMIT}'
+                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --name=pr-${CHANGE_ID}'
+            }
+        }
+        stage('Publish pre-release images from master') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --name=master'
+            }
+        }
+        stage('Publish pre-release images from INT') {
+            when {
+                branch 'INT'
+            }
+            steps {
+                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --name=INT'
             }
         }
         stage('Publish final version images') {
@@ -36,7 +49,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'sh build-n-publish.sh ${GIT_COMMIT} ${TAG_NAME}'
+                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --version=${TAG_NAME}'
             }
         }
         stage('Generate version') {
@@ -44,9 +57,9 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh 'echo TODO: generate a tag automatically'
+                sh 'echo "TODO: generate a tag automatically"'
             }
-        }
+		}
     }
 }
 
@@ -64,6 +77,8 @@ def boolean isVersionTag(String tag) {
 
     return tagMatcher.matches()
 }
+
+def CHANGE_ID = env.CHANGE_ID
 
 // https://stackoverflow.com/questions/56030364/buildingtag-always-returns-false
 // workaround https://issues.jenkins-ci.org/browse/JENKINS-55987
