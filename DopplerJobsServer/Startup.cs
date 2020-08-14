@@ -24,7 +24,6 @@ using System.Net.Http;
 using System.Security.Authentication;
 using Doppler.Currency.Job.Authorization;
 using Doppler.Database;
-using Microsoft.AspNetCore.Http;
 
 namespace Doppler.Jobs.Server
 {
@@ -90,11 +89,15 @@ namespace Doppler.Jobs.Server
 
             app.UseStaticFiles();
 
-            app.UseHangfireDashboard("/hangfire",new DashboardOptions
+            if (env.IsDevelopment())
             {
-                PrefixPath = !env.IsDevelopment() ? "/jobs" : null,
-                Authorization = new[] { new HangfireAuthorizationFilter() }
-            });
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    PrefixPath = !env.IsDevelopment() ? "/jobs" : null,
+                    Authorization = new[] {new HangfireAuthorizationFilter()}
+                });
+            }
+
             app.UseHangfireServer(new BackgroundJobServerOptions
             {
                 WorkerCount = 5
