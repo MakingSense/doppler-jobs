@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -17,6 +18,7 @@ using Xunit;
 
 namespace Doppler.Jobs.Test
 {
+    [ExcludeFromCodeCoverage]
     public class DopplerCurrencyServiceTests
     {
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;

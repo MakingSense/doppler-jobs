@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Doppler.Jobs.Server;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.TestHost;
 
 namespace Doppler.Jobs.Test.Integration
 {
+    [ExcludeFromCodeCoverage]
     public class TestServerFixture : IDisposable
     {
         public TestServer Server { get; }

@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Extensions.Http;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -27,6 +28,7 @@ using Doppler.Database;
 
 namespace Doppler.Jobs.Server
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)

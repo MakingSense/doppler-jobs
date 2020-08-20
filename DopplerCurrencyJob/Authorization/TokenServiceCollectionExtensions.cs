@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Doppler.Currency.Job.Authorization
 {
+    [ExcludeFromCodeCoverage]
     public static class TokenServiceCollectionExtensions
     {
         public static IServiceCollection AddJwtToken([NotNull] this IServiceCollection services)

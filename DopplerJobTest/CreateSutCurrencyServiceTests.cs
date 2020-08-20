@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using CrossCutting;
 using Doppler.Currency.Job.Authorization;
@@ -12,6 +13,7 @@ using Moq;
 
 namespace Doppler.Jobs.Test
 {
+    [ExcludeFromCodeCoverage]
     public static class CreateSutCurrencyServiceTests
     {
         public static DopplerCurrencyService CreateSut(
