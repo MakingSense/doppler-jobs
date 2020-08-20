@@ -6,6 +6,7 @@
 		ARS = 1,
 		CLP = 2,
 		MXN = 3,
-		EUR = 4
+		EUR = 4,
+		COP = 5
 	}
 }
