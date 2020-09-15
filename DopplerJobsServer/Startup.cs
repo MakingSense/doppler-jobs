@@ -93,7 +93,7 @@ namespace Doppler.Jobs.Server
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
-                PrefixPath = !env.IsDevelopment() ? "/jobs" : null,
+                PrefixPath = Configuration["PrefixHangfireDashboard"],
                 Authorization = new[] {new HangfireAuthorizationFilter()},
                 IsReadOnlyFunc = context => !env.IsDevelopment()
             });
