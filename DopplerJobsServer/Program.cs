@@ -38,6 +38,9 @@ namespace Doppler.Jobs.Server
                     // the content `Trace`. See:
                     // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-3.1#key-per-file-configuration-provider
                     configurationBuilder.AddKeyPerFile("/run/secrets", true);
+                    
+                    // Configuration for Docker Windows containers.
+                    configurationBuilder.AddKeyPerFile("C:\\ProgramData\\Docker\\secrets", true);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
