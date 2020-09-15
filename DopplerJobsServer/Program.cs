@@ -30,7 +30,7 @@ namespace Doppler.Jobs.Server
                     configurationBuilder.AddJsonFile("/run/secrets/appsettings.Secret.json", true);
 
                     // Configuration for Docker Windows containers.
-                    configurationBuilder.AddJsonFile("/ProgramData/docker/secrets/appsettings.Secret.json", true);
+                    configurationBuilder.AddJsonFile("C:\\ProgramData\\Docker\\secrets\\appsettings.Secret.json", true);
 
                     // It is to override configuration using a different file
                     // for each configuration entry. For example, you can create
