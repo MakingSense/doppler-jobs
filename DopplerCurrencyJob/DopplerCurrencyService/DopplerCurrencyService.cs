@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CrossCutting;
+using CrossCutting.Authorization;
 using CrossCutting.DopplerSapService.Entities;
 using Dapper;
-using Doppler.Currency.Job.Authorization;
 using Doppler.Currency.Job.Enums;
 using Doppler.Currency.Job.Settings;
 using Doppler.Database;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace Doppler.Currency.Job.DopplerCurrencyService
@@ -25,9 +23,7 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<DopplerCurrencyService> _logger;
         private readonly IDbConnectionFactory _dbConnectionFactory;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
-        private readonly JwtOptions _jwtOptions;
-        private readonly SigningCredentials _signingCredentials;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
         public DopplerCurrencyService(
             IHttpClientFactory httpClientFactory,
@@ -35,18 +31,14 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
             ILogger<DopplerCurrencyService> logger,
             TimeZoneJobConfigurations jobConfig,
             IDbConnectionFactory dbConnectionFactory,
-            IOptions<JwtOptions> jwtOptions,
-            SigningCredentials signingCredentials,
-            JwtSecurityTokenHandler tokenHandler)
+            IJwtTokenGenerator jwtTokenGenerator)
         {
             _dopplerCurrencySettings = dopplerCurrencySettings.CurrentValue;
             _jobConfig = jobConfig;
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _dbConnectionFactory = dbConnectionFactory;
-            _jwtOptions = jwtOptions.Value;
-            _signingCredentials = signingCredentials;
-            _tokenHandler = tokenHandler;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
 
         public async Task<IList<CurrencyResponse>> GetCurrencyByCode()
@@ -59,7 +51,7 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
                 try
                 {
                     var cstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, cstZone);
-                    var jwtToken = CreateJwtToken();
+                    var jwtToken = _jwtTokenGenerator.CreateJwtToken();
                     var httpResponse = await GetCurrencyValue(currencyCode, cstTime, jwtToken);
                     var jsonResult = await httpResponse.Content.ReadAsStringAsync();
 
@@ -75,7 +67,7 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
                         {
                             _logger.LogError("{ReasonPhrase}. Error getting currency for {currencyCode}.", httpResponse.ReasonPhrase, currencyCode);
 
-                            ///Get the most recent previous price
+                            // Get the most recent previous price
                             result = await GetPreviousPrices(cstTime, currencyCode);
 
                             if (result == null)
@@ -91,7 +83,6 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
                     else
                     {
                         _logger.LogError("{ReasonPhrase}. Error getting currency for {currencyCode}.", httpResponse.ReasonPhrase, currencyCode);
-                        continue;
                     }
                 }
                 catch (Exception e)
@@ -159,24 +150,11 @@ namespace Doppler.Currency.Job.DopplerCurrencyService
             return await client.SendAsync(httpRequest).ConfigureAwait(false);
         }
 
-        private string CreateJwtToken()
-        {
-            var now = DateTime.UtcNow;
-
-            var jwtToken = _tokenHandler.CreateToken(new SecurityTokenDescriptor
-            {
-                Expires = now.AddDays(_jwtOptions.TokenLifeTime),
-                SigningCredentials = _signingCredentials
-            }) as JwtSecurityToken;
-
-            return _tokenHandler.WriteToken(jwtToken);
-        }
-
         private async Task<CurrencyResponse> GetPreviousPrices(DateTime cstTime, string currencyCode)
         {
             var currentDate = cstTime;
             CurrencyResponse result = null;
-            var jwtToken = CreateJwtToken();
+            var jwtToken = _jwtTokenGenerator.CreateJwtToken();
 
             for (var count = 1;  count <= _dopplerCurrencySettings.HolidayRetryCountLimit; count++)
             {

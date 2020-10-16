@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using CrossCutting.Authorization;
 using CrossCutting.DopplerSapService.Entities;
 using CrossCutting.DopplerSapService.Settings;
 using Microsoft.Extensions.Logging;
@@ -19,11 +20,13 @@ namespace CrossCutting.DopplerSapService
         private readonly JsonSerializerSettings _serializationSettings;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<DopplerSapService> _logger;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
         public DopplerSapService(
             IHttpClientFactory httpClientFactory,
             IOptionsMonitor<DopplerSapConfiguration> dopplerSapServiceSettings,
-            ILogger<DopplerSapService> logger)
+            ILogger<DopplerSapService> logger,
+            IJwtTokenGenerator jwtTokenGenerator)
         {
             _dopplerSapServiceSettings = dopplerSapServiceSettings.CurrentValue;
             _httpClientFactory = httpClientFactory;
@@ -41,6 +44,8 @@ namespace CrossCutting.DopplerSapService
                     new Iso8601TimeSpanConverter()
                 }
             };
+
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
 
         public async Task<HttpResponseMessage> SendCurrency(IList<CurrencyResponse> currencyList)
@@ -60,8 +65,10 @@ namespace CrossCutting.DopplerSapService
             var httpResponse = new HttpResponseMessage();
             try
             {
+                var jwtToken = _jwtTokenGenerator.CreateJwtToken();
                 _logger.LogInformation("Sending request to Doppler SAP Api.");
                 var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
                 httpResponse = await client.SendAsync(httpRequest).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -90,8 +97,10 @@ namespace CrossCutting.DopplerSapService
             var httpResponse = new HttpResponseMessage();
             try
             {
+                var jwtToken = _jwtTokenGenerator.CreateJwtToken();
                 _logger.LogInformation("Sending request to Doppler SAP Api.");
                 var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
                 httpResponse = await client.SendAsync(httpRequest).ConfigureAwait(false);
             }
             catch (Exception e)

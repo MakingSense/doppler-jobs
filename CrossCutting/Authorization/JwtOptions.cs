@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Doppler.Currency.Job.Authorization
+namespace CrossCutting.Authorization
 {
     [ExcludeFromCodeCoverage]
     public class JwtOptions

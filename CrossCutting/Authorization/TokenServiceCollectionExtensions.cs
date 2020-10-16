@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Doppler.Currency.Job.Authorization
+namespace CrossCutting.Authorization
 {
     [ExcludeFromCodeCoverage]
     public static class TokenServiceCollectionExtensions

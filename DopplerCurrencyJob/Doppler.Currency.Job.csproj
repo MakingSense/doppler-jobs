@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Hangfire.Core" Version="1.7.16" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,7 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using CrossCutting;
-using Doppler.Currency.Job.Authorization;
+using CrossCutting.Authorization;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
 using Doppler.Database;
@@ -37,9 +37,7 @@ namespace Doppler.Jobs.Test
                     TimeZoneJobs = TimeZoneHelper.GetTimeZoneByOperativeSystem("Argentina Standard Time")
                 },
                 dbConnectionFactory,
-                jwtOptions ?? Mock.Of<IOptions<JwtOptions>>(),
-                signingCredentials ?? Mock.Of<SigningCredentials>(),
-                jwtSecurityTokenHandler ?? Mock.Of<JwtSecurityTokenHandler>());
+                Mock.Of<IJwtTokenGenerator>());
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using CrossCutting.Authorization;
 using CrossCutting.DopplerSapService;
 using CrossCutting.DopplerSapService.Entities;
 using CrossCutting.DopplerSapService.Settings;
@@ -54,7 +55,8 @@ namespace Doppler.Jobs.Test
             var service = new DopplerSapService(
                 _httpClientFactoryMock.Object,
                 _dopplerSapServiceSettingsMock.Object, 
-                Mock.Of<ILogger<DopplerSapService>>());
+                Mock.Of<ILogger<DopplerSapService>>(),
+                Mock.Of<IJwtTokenGenerator>());
 
             var result = await service.SendCurrency(new List<CurrencyResponse>());
 
@@ -79,7 +81,8 @@ namespace Doppler.Jobs.Test
             var service = new DopplerSapService(
                 _httpClientFactoryMock.Object,
                 _dopplerSapServiceSettingsMock.Object,
-                Mock.Of<ILogger<DopplerSapService>>());
+                Mock.Of<ILogger<DopplerSapService>>(),
+                Mock.Of<IJwtTokenGenerator>());
 
             var result = await service.SendCurrency(new List<CurrencyResponse>());
 

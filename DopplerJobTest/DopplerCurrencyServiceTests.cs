@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Doppler.Currency.Job.Authorization;
+using CrossCutting.Authorization;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
 using Microsoft.Extensions.Logging;

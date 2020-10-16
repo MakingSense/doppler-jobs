@@ -23,7 +23,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
-using Doppler.Currency.Job.Authorization;
+using CrossCutting.Authorization;
 using Doppler.Database;
 
 namespace Doppler.Jobs.Server
@@ -80,6 +80,7 @@ namespace Doppler.Jobs.Server
             services.AddTransient<JwtSecurityTokenHandler>();
             services.Configure<JwtOptions>(Configuration.GetSection(nameof(JwtOptions)));
             services.AddJwtToken();
+            services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
