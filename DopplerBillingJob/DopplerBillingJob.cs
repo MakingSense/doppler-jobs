@@ -25,9 +25,9 @@ namespace Doppler.Billing.Job
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 0)]
-        public object Run() => RunAsync().GetAwaiter().GetResult();
+        public void Run() => RunAsync().GetAwaiter().GetResult();
 
-        private async Task<object> RunAsync()
+        private async Task RunAsync()
         {
             _logger.LogInformation("Getting data from Doppler database.");
             var billingData = await _dopplerRepository.GetUserBillingInformation();
@@ -38,8 +38,6 @@ namespace Doppler.Billing.Job
                     billingData.Count);
                 await _dopplerSapService.SendUserBillings(billingData);
             }
-
-            return billingData;
         }
     }
 }
