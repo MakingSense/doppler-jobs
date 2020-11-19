@@ -40,7 +40,7 @@ namespace Doppler.Jobs.Test.Integration
         }
 
         [Fact]
-        public void DopplerCurrencyJob_ShouldBeNoSendDataToSap_WhenListHasManyItems()
+        public void DopplerCurrencyJob_ShouldBeSendDataToSap_WhenListHasManyItems()
         {
             _dopplerCurrencyServiceMock.Setup(x => x.GetCurrencyByCode())
                 .ReturnsAsync(new List<CurrencyResponse>
@@ -52,6 +52,10 @@ namespace Doppler.Jobs.Test.Integration
                     new CurrencyResponse
                     {
                         CurrencyName = "MNX"
+                    },
+                    new CurrencyResponse
+                    {
+                        CurrencyName = "COP"
                     }
                 });
 
@@ -62,7 +66,7 @@ namespace Doppler.Jobs.Test.Integration
 
             var data = job.Run();
 
-            Assert.Equal(2, data.Count);
+            Assert.Equal(3, data.Count);
             _loggerMock.VerifyLogger(LogLevel.Information, "Getting currency per each code enabled.", Times.Once());
             _loggerMock.VerifyLogger(LogLevel.Information, "Sending currency data to Doppler SAP system.", Times.Once());
             _loggerMock.VerifyLogger(LogLevel.Information, "Insert currency data into Doppler Database.", Times.Once());
